@@ -19,7 +19,7 @@ class ViewController: UIViewController,UISearchBarDelegate {
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        //searchBar.resignFirstResponder()
+        searchBar.resignFirstResponder()
         let urlString = "https://api.apixu.com/v1/current.json?key=2fcbca7114dd43fb82e144949180601&q=\(searchBar.text!.replacingOccurrences(of: " ", with: "%20"))"
         let url = URL(string: urlString)
         var locationName: String?
