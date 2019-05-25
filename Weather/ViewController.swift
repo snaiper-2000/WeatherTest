@@ -23,7 +23,9 @@ class ViewController: UIViewController,UISearchBarDelegate {
         let urlString = "https://api.apixu.com/v1/current.json?key=2fcbca7114dd43fb82e144949180601&q=\(searchBar.text!.replacingOccurrences(of: " ", with: "%20"))"
         let url = URL(string: urlString)
         var locationName: String?
-        var temperature: Double?
+        var temperature: Int?
+        //var icon: UIImage
+        //let temperatureFull = "\(temperature!) + \(celsiya)"
         var errorHasOccured: Bool = false
         
         let task = URLSession.shared.dataTask(with: url!){/*[weak self]*/(data,response,error) in
@@ -38,9 +40,17 @@ class ViewController: UIViewController,UISearchBarDelegate {
                 if let location = json["location"] {
                     locationName = location["name"] as? String
                 }
+                
                 if let current = json["current"]{
-                    temperature = current["temp_c"] as? Double
+                    temperature = current["temp_c"] as? (Int)
                 }
+                
+                /*if let current = json["current"]{
+                    if let condition = current["condition"]{
+                        icon = condition["icon"] as? UIImage
+                    }
+                }*/
+                
                 //rerfech in 1 Thead
                 DispatchQueue.main.async {
                     if errorHasOccured{
@@ -48,7 +58,7 @@ class ViewController: UIViewController,UISearchBarDelegate {
                         self.temperatureLabel.isHidden = true
                     }else{
                         self.cityLabel.text = locationName
-                        self.temperatureLabel.text = "\(temperature!)"
+                        self.temperatureLabel.text = "\(temperature!) °C"
                         self.temperatureLabel.isHidden = false
                     }
                 }
