@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import Kingfisher
 
 class ViewController: UIViewController,UISearchBarDelegate {
 
+    @IBOutlet var textLabel: UILabel!
+    @IBOutlet var iconImage: UIImageView!
     @IBOutlet weak var regionLabel: UILabel!
-    @IBOutlet weak var contryLabel: UILabel!
+    @IBOutlet var contryLabel: UILabel!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchBar: UISearchBar!
@@ -21,15 +24,11 @@ class ViewController: UIViewController,UISearchBarDelegate {
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        var weather = Weather()
+        
         searchBar.resignFirstResponder()
         let urlString = "https://api.apixu.com/v1/current.json?key=2fcbca7114dd43fb82e144949180601&q=\(searchBar.text!.replacingOccurrences(of: " ", with: "%20"))"
         let url = URL(string: urlString)
-        var locationName: String?
-        var regionName: String?
-        var countryName: String?
-        var temperature: Int?
-        //var icon: AnyObject?
-        //var test = String?
         var errorHasOccured: Bool = false
         
         let task = URLSession.shared.dataTask(with: url!){/*[weak self]*/(data,response,error) in
@@ -42,37 +41,48 @@ class ViewController: UIViewController,UISearchBarDelegate {
                 }
                 
                 if let location = json["location"] {
-                    locationName = location["name"] as? String
-                    regionName = location["region"] as? String
-                    countryName = location["country"] as? String
+                    weather.locationName = location["name"] as? String
+                    weather.regionName = location["region"] as? String
+                    weather.countryName = location["country"] as? String
+                    weather.localTime = location["localtime"] as? String
                 }
                 
                 if let current = json["current"]{
-                    temperature = current["temp_c"] as? (Int)
+                    weather.temperature = current["temp_c"] as? (Int)
+                    weather.isDay = current["is_day"] as? (Int)
                     
-                    //iconv = current["condition"] as? [String: String]
-                        //icon = condition["icon"] as? String
-                    //test = icon["icon"] as? String
+                    let condition = current["condition"] as? [String: AnyObject]
+                    weather.text = condition?["text"] as? String
+                    weather.icon = condition?["icon"] as? String
+                    weather.code = condition?["code"] as? (Int)
                 }
-                
-                /*if let current = json["current"]{
-                    if let condition = current["condition"]{
-                        icon = condition["icon"] as? URL
-                    }
-                }*/
                 
                 //rerfech in 1 Thead
                 DispatchQueue.main.async {
                     if errorHasOccured{
                         self.cityLabel.text = "Error of city name"
                         self.temperatureLabel.isHidden = true
+                        self.regionLabel.isHidden = true
+                        self.contryLabel.isHidden = true
+                        self.textLabel.isHidden = true
+                        self.iconImage.isHidden = true
                     }else{
-                        self.cityLabel.text = locationName
-                        self.temperatureLabel.text = "\(temperature!)°C"
+                        self.cityLabel.text = weather.locationName
+                        self.temperatureLabel.text = "\(weather.temperature!)°C"
                         self.temperatureLabel.isHidden = false
                         //test
-                        self.regionLabel.text = regionName
-                        self.contryLabel.text = countryName
+                        self.regionLabel.text = "Region: \(weather.regionName!)"
+                        self.regionLabel.isHidden = false
+                        self.contryLabel.text = "Contry: \(weather.countryName!)"
+                        self.contryLabel.isHidden = false
+                        
+                        self.textLabel.text = weather.text!
+                        self.textLabel.isHidden = false
+                        
+                        let url = URL(string: "https:\(weather.icon!)")
+                        self.iconImage.kf.indicatorType = .activity
+                        self.iconImage.kf.setImage(with: url)
+                        self.iconImage.isHidden = false
                     }
                 }
             }
@@ -83,4 +93,3 @@ class ViewController: UIViewController,UISearchBarDelegate {
         task.resume()
     }
 }
-
