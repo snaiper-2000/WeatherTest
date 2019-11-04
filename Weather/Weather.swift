@@ -10,8 +10,8 @@ struct Weather{
     var regionName: String?
     var countryName: String?
     var temperature: Int?
-    var text: String?
-    var icon: String?
+    var weather_descriptions: [String]?
+    var weather_icons: [String]?
     var localTime: String?
     var isDay: Int?
     var code: Int?
